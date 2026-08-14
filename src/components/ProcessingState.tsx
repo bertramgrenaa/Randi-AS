@@ -38,10 +38,10 @@ export default function ProcessingState({ previewUrl, fileName }: ProcessingStat
             <DoorOpen size={48} />
           </div>
         )}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-randi-copper/0 via-randi-copper/10 to-randi-copper/0">
-          <div className="animate-randi-scan h-1/3 w-full bg-gradient-to-b from-transparent via-randi-copper/40 to-transparent" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-randi-accent/0 via-randi-accent/10 to-randi-accent/0">
+          <div className="animate-randi-scan h-1/3 w-full bg-gradient-to-b from-transparent via-randi-accent/40 to-transparent" />
         </div>
-        <div className="absolute inset-0 ring-1 ring-inset ring-randi-copper/20" />
+        <div className="absolute inset-0 ring-1 ring-inset ring-randi-accent/20" />
       </div>
 
       <div className="w-full max-w-sm space-y-3">
@@ -54,7 +54,7 @@ export default function ProcessingState({ previewUrl, fileName }: ProcessingStat
               key={step.label}
               className={`flex items-center gap-3 rounded-xl border px-4 py-3 transition-colors ${
                 isActive
-                  ? "border-randi-copper/40 bg-randi-copper/5"
+                  ? "border-randi-accent/40 bg-randi-accent/5"
                   : isDone
                     ? "border-randi-line bg-white"
                     : "border-randi-line/60 bg-white/50"
@@ -65,7 +65,7 @@ export default function ProcessingState({ previewUrl, fileName }: ProcessingStat
                   isDone
                     ? "bg-randi-ink text-white"
                     : isActive
-                      ? "bg-randi-copper text-white"
+                      ? "bg-randi-accent text-white"
                       : "bg-stone-100 text-stone-400"
                 }`}
               >

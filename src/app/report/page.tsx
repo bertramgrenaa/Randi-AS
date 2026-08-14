@@ -45,7 +45,7 @@ export default function ReportPage() {
           Ingen rapportdata fundet. Gennemfør en analyse på forsiden og udfyld kontaktformularen
           for at generere rapporten.
         </p>
-        <Link href="/" className="mt-4 inline-block text-sm font-medium text-randi-copper underline">
+        <Link href="/" className="mt-4 inline-block text-sm font-medium text-randi-accent underline">
           Gå til forsiden
         </Link>
       </div>
@@ -102,7 +102,7 @@ export default function ReportPage() {
       <div className="rounded-2xl border border-randi-line bg-white p-6 shadow-sm sm:p-8 print:border-0 print:p-0 print:shadow-none">
         <div className="flex items-start justify-between border-b border-randi-line pb-6">
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-randi-copper">
+            <p className="text-xs font-medium uppercase tracking-wide text-randi-accent">
               Randi A/S · Building Specifier Report
             </p>
             <h1 className="mt-1 text-2xl font-semibold text-randi-ink">

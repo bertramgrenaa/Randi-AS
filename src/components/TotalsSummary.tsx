@@ -47,7 +47,7 @@ function SummaryCard({
     <div className="rounded-2xl border border-randi-line bg-white p-5 shadow-sm">
       <div
         className={`mb-3 flex h-9 w-9 items-center justify-center rounded-full ${
-          accent ? "bg-emerald-50 text-emerald-600" : "bg-randi-copper/10 text-randi-copper"
+          accent ? "bg-emerald-50 text-emerald-600" : "bg-randi-accent/10 text-randi-accent"
         }`}
       >
         {icon}

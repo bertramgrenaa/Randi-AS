@@ -1,13 +1,13 @@
 # Randi BuildingScan & Visualizer — AI-konfigurator (MVP/prototype)
 
-En B2B lead-gen prototype for Randi A/S. Brugeren uploader et billede eller dørskema, får en
-AI-drevet analyse af dørtype/farve/materiale, en matchende Randi-produktkonfiguration
-(dørgreb, paskvilgreb, sanitet, tilbehør) med automatisk cross-sell, et samlet pris- og
-CO2e/EPD-estimat — og kan låse en komplet "Building Specifier Report" op ved at indtaste
-kontaktoplysninger.
+En B2B lead-gen prototype for Randi A/S: et produktsite i Randi-brandets navy/rød designsprog,
+hvor brugeren kan gennemse dørgreb, paskvilgreb, sanitet og tilbehør på tværs af Randi Line® og
+Novo Line — og fra en hvilken som helst produktside starte AI-konfiguratoren for at få en
+komplet stykliste, pris- og CO2e/EPD-beregning, med det valgte produkt som udgangspunkt.
 
-> Produktdata, priser og AI-visualiseringer i denne prototype er **simulerede** til
-> demoformål og udgør ikke bindende tilbud eller certificerede EPD'er.
+> Design, produktdata, priser og AI-visualiseringer i denne prototype er **simulerede** til
+> demoformål. Logo/ikonmærket er et originalt design til prototypen — det er ikke en
+> gengivelse af Randi A/S' registrerede varemærke.
 
 ## Kom i gang
 
@@ -21,9 +21,7 @@ npm run dev
 ### Live AI-billedanalyse (valgfrit)
 
 Uden nogen API-nøgle kører appen fuldt funktionelt på en deterministisk mock-simulator
-(`src/lib/mock-scenarios.ts`), så hele flowet kan demonstreres uden eksterne afhængigheder.
-
-For at slå live billedanalyse via Claude Vision til:
+(`src/lib/mock-scenarios.ts`). For at slå live billedanalyse via Claude Vision til:
 
 ```bash
 cp .env.example .env.local
@@ -31,7 +29,27 @@ cp .env.example .env.local
 ```
 
 Hvis kaldet til Claude fejler eller nøglen mangler, falder `/api/analyze-door` automatisk
-tilbage til mock-simulatoren — brugerflowet fejler aldrig på grund af dette.
+tilbage til mock-simulatoren.
+
+## Sider
+
+```
+/                                   Forside (hero, "Sådan virker det", serier, dokumentation)
+/produkter                          Serier-oversigt + søgning (?q=...)
+/produkter/[series]                 Produktgrid for én serie, grupperet pr. produkttype
+/produkter/[series]/[productId]     Produktdetalje + "Brug i AI-konfigurator"
+/konfigurator                       Upload → AI-analyse → resultat-dashboard → lead gate
+/konfigurator?product=<id>          Samme flow, men forudkonfigureret til et valgt produkt
+/report                             Printbar/downloadbar Building Specifier Report (efter lead gate)
+```
+
+### Produkt → konfigurator-kobling
+
+Fra enhver produktside kan brugeren klikke **"Brug i AI-konfigurator"**, som sender dem til
+`/konfigurator?product=<productId>`. AI-konfiguratoren analyserer stadig det uploadede
+billede for dørtype/antal, men serie og finish fra det valgte produkt vinder over AI'ens eget
+gæt (`ProductPreference` i `src/lib/matching-engine.ts`) — så resultatet altid tager
+udgangspunkt i det produkt, brugeren startede fra.
 
 ## Arkitektur
 
@@ -42,12 +60,15 @@ scripts/gen-product-images.mjs  Genererer placeholder-SVG'er for produktkataloge
 src/types/                   Delte TypeScript-typer (katalog, analyseresultat)
 src/lib/
   catalog.ts                 Indlæser og normaliserer produktkataloget
+  series.ts                  Serie-metadata (slug, navn, tagline) til /produkter-siderne
   pricing.ts                 Pris-/CO2e-beregning (moms, formattering)
   mock-scenarios.ts          Kanoniske "AI-analyse"-scenarier til demo uden API-nøgle
   vision-analysis.ts         Live Claude Vision-kald (valgfrit) + mock-fallback
-  matching-engine.ts         Matcher analyseresultat mod kataloget + cross-sell-regler
+  matching-engine.ts         Matcher analyseresultat mod kataloget, cross-sell-regler,
+                              samt ProductPreference-override fra produktsiderne
 
 src/components/
+  site/                       SiteHeader, SiteFooter, Logo, ProductCard — brand-tema/navigation
   UploadDropzone.tsx          Drag-and-drop upload
   ProcessingState.tsx         Analyse/processing-state med trinvise indikatorer
   ResultDashboard.tsx         Resultat-dashboard (samler nedenstående)
@@ -57,23 +78,14 @@ src/components/
   LeadGateModal.tsx           Lead gate-modal (kontaktformular)
 
 src/app/
-  page.tsx                    Hovedflow: upload → processing → resultat
-  report/page.tsx             Printbar Building Specifier Report (PDF via print, + JSON-download)
-  api/analyze-door/route.ts   Modtager billede, kører/simulerer vision-analyse, matcher katalog
+  (site)/layout.tsx           Fælles SiteHeader/SiteFooter for alle marketing-/produktsider
+  (site)/page.tsx             Forside
+  (site)/produkter/...        Produktkatalog-browsing
+  (site)/konfigurator/page.tsx  AI-konfigurator-flow
+  report/page.tsx             Printbar specifier-rapport (uden global nav, selvstændig header)
+  api/analyze-door/route.ts   Modtager billede (+ evt. preferredProductId), matcher katalog
   api/leads/route.ts          Simuleret lead-capture (logges server-side)
 ```
-
-### Dataflow
-
-1. **Upload** — `UploadDropzone` sender billede + evt. noter til `/api/analyze-door`.
-2. **Analyse** — route'n forsøger et live Claude Vision-kald (hvis `ANTHROPIC_API_KEY` er
-   sat), ellers vælges et af de faste mock-scenarier deterministisk ud fra filnavn/størrelse.
-3. **Matching** — `matching-engine.ts` matcher den genkendte dørserie/finish/dørtype mod
-   produktkataloget og bygger automatisk cross-sell (paskvilgreb, sanitet, dørtilbehør) med
-   mængder afledt af antal døre/vinduer/baderum.
-4. **Resultat** — `ResultDashboard` viser visuelt preview, stykliste og totals (pris + CO2e).
-5. **Lead gate** — `LeadGateModal` poster til `/api/leads` og gemmer analyseresultatet i
-   `sessionStorage`, hvorefter `/report` åbnes i en ny fane som en printbar/downloadbar rapport.
 
 ## Scripts
 

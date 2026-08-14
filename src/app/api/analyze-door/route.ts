@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { buildAnalysisResult } from "@/lib/matching-engine";
+import { getProductById } from "@/lib/catalog";
+import { buildAnalysisResult, type ProductPreference } from "@/lib/matching-engine";
 import { mockVisionAnalysis, tryLiveVisionAnalysis } from "@/lib/vision-analysis";
 import type { AnalysisSource } from "@/types/analysis";
 
@@ -11,6 +12,9 @@ export const runtime = "nodejs";
  * Accepts multipart/form-data with:
  *  - file: image or PDF of a door / door schedule (required)
  *  - notes: optional free-text context from the user
+ *  - preferredProductId: optional catalog product id — set when the user launched the
+ *    configurator from a specific product page ("Brug i AI-konfigurator"). Its series/finish
+ *    then overrides whatever the AI/mock detection would otherwise have picked.
  *
  * Runs (or simulates) computer-vision door detection, matches the result against the
  * Randi product catalog, and returns a full AnalysisResult including cross-sell items,
@@ -29,6 +33,7 @@ export async function POST(request: NextRequest) {
 
   const file = formData.get("file");
   const notes = String(formData.get("notes") ?? "");
+  const preferredProductId = formData.get("preferredProductId");
 
   if (!(file instanceof File) || file.size === 0) {
     return NextResponse.json(
@@ -67,8 +72,16 @@ export async function POST(request: NextRequest) {
     detection = mockVisionAnalysis(seed);
   }
 
+  let preference: ProductPreference | undefined;
+  if (typeof preferredProductId === "string" && preferredProductId) {
+    const product = getProductById(preferredProductId);
+    if (product) {
+      preference = { series: product.series, finish: product.finish, productName: product.name };
+    }
+  }
+
   try {
-    const result = buildAnalysisResult(detection, file.name, source);
+    const result = buildAnalysisResult(detection, file.name, source, preference);
     return NextResponse.json(result);
   } catch (err) {
     console.error("Failed to build analysis result", err);
