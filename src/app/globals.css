@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f7f6f3;
+  --foreground: #1c1917;
+
+  /* Randi brand tokens — deep graphite as primary, warm copper as accent (echoes the
+     brushed-metal / brass finishes in the product catalog). */
+  --randi-ink: #1c1917;
+  --randi-graphite: #2b2a28;
+  --randi-copper: #b3611f;
+  --randi-copper-dark: #8f4d18;
+  --randi-cream: #f7f6f3;
+  --randi-line: #e7e5e1;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-randi-ink: var(--randi-ink);
+  --color-randi-graphite: var(--randi-graphite);
+  --color-randi-copper: var(--randi-copper);
+  --color-randi-copper-dark: var(--randi-copper-dark);
+  --color-randi-cream: var(--randi-cream);
+  --color-randi-line: var(--randi-line);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+@keyframes randi-scan {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+.animate-randi-scan {
+  animation: randi-scan 2.4s ease-in-out infinite;
+}
+
+@media print {
+  * {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  body {
+    background: #ffffff;
+  }
+}
