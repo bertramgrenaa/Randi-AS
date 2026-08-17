@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { RANDI_PRODUCTS, RANDI_SERIES_INFO, type RandiProduct } from "@/data/randi-real-products";
 import HandleIllustration from "./HandleIllustration";
 import RevealOnScroll from "./RevealOnScroll";
+import VisualizerExamplesSection from "./VisualizerExamplesSection";
 
 const SERIES_FILTERS = ["Alle", "Randi-Line®", "Randi-Line® Design"] as const;
 
@@ -28,6 +29,8 @@ export default function CatalogueStage({ onSelect }: CatalogueStageProps) {
           {RANDI_SERIES_INFO.heritage} Vælg et greb for at se det på din egen dør.
         </p>
       </div>
+
+      <VisualizerExamplesSection />
 
       <div className="rv-container">
         <div className="rv-filter-row">
