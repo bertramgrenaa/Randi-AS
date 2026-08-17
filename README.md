@@ -2,12 +2,15 @@
 
 To prototyper i ét repo:
 
-1. **`/visualizer` — Randi AI Visual Configurator** (flagskibet): en premium, redaktionel
-   produktoplevelse bygget på **rigtige Randi-produkter** (Randi-Line® Nordic, Wing, Komé, 1060,
-   1021 m.fl., researchet fra randi.dk). Brugeren vælger et rigtigt greb, uploader et billede af
-   sin egen dør, ser grebet visualiseret på billedet, og får derefter — progressivt — projektpris,
-   klimaaftryk, transparente anbefalinger og en sammenligning. Se `src/data/randi-real-products.ts`
-   for kildehenvisninger.
+1. **`/visualizer` — Randi AI Visual Configurator** (flagskibet): en produktoplevelse designet tæt
+   op ad randi.dk's rigtige hjemmeside (mørk navy header med fuld navigation, rød AWARDS-badge,
+   søgefelt, sprogvælger, hvidt kort-grid med SKU-numre) og bygget på **rigtige Randi-produkter**
+   (Randi-Line® Nordic, Wing, Komé, 1060, 1021 m.fl., researchet fra randi.dk). Brugeren vælger et
+   rigtigt greb, uploader et billede af sin egen dør, og trækker derefter selv den illustrerede
+   greb-visualisering hen på det faktiske dørsted i billedet (der er ingen rigtig computer vision
+   i denne prototype, så manuel placering er den ærlige og funktionelle løsning) — og får derefter
+   — progressivt — projektpris, klimaaftryk, transparente anbefalinger og en sammenligning. Se
+   `src/data/randi-real-products.ts` for kildehenvisninger.
 2. **`/`, `/produkter`, `/konfigurator` — B2B lead-gen prototype**: et separat produktsite i
    Randi-brandets navy/rød designsprog med et bredere (simuleret) katalog og en mere
    dashboard-agtig AI-konfigurator/stykliste-flow.
@@ -42,8 +45,11 @@ præcis som opgavebeskrivelsen kræver.
 
 **AI-arkitektur**: `src/lib/ai/visualizeDoor.ts` definerer en udbyder-uafhængig
 `visualizeDoor()`-funktion. `mockVisualizeDoor` simulerer resultatet klient-side (en
-placerings-heuristik + en illustreret overlay) og er tydeligt markeret `isSimulated: true` —
-appen foregiver ikke at have genereret et rigtigt AI-billede. `createOpenAIImageProvider()` /
+placerings-heuristik som startpunkt + en illustreret overlay) og er tydeligt markeret
+`isSimulated: true` — appen foregiver ikke at have genereret et rigtigt AI-billede. Da der ikke er
+nogen rigtig dør-genkendelse i denne prototype, kan brugeren selv **trække grebet hen på det
+faktiske dørsted** i sit foto og justere størrelsen (`BeforeAfterSlider.tsx`) — det gør
+visualiseringen brugbar i stedet for at gætte forkert. `createOpenAIImageProvider()` /
 `createGoogleImageProvider()` er signatur-kompatible stubs, klar til at blive koblet til en
 rigtig billed-model uden at ændre UI-koden.
 
@@ -149,9 +155,10 @@ src/components/visualizer/
   RevealOnScroll.tsx                IntersectionObserver-baseret scroll-reveal
 
 src/app/visualizer/
-  visualizer.css                    Selvstændigt "rv"-designsystem (paper/ink/brass/moss)
-  page.tsx                          Ligger uden for (site)-gruppen — egen minimal top-bar,
-                                     ingen navy/rød B2B-nav
+  visualizer.css                    Selvstændigt "rv"-designsystem, lagt tæt op ad randi.dk's
+                                     rigtige design (navy header/nav, rød accent, hvide kort)
+  page.tsx                          Ligger uden for (site)-gruppen — egen navy top-bar med fuld
+                                     navigation, AWARDS-badge og søgefelt (matcher randi.dk)
 ```
 
 ## Scripts

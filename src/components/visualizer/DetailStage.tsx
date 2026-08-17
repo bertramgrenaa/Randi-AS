@@ -5,11 +5,11 @@ import { formatDKK } from "@/lib/project-engines";
 import HandleIllustration from "./HandleIllustration";
 
 const FINISH_SWATCH_COLOR: Record<RandiProduct["finishFamily"], string> = {
-  steel: "linear-gradient(135deg,#e2ded2,#a39c8c)",
-  "black-pvd": "linear-gradient(135deg,#4a453c,#211e19)",
-  "brass-pvd": "linear-gradient(135deg,#d3ab68,#96723a)",
-  "copper-pvd": "linear-gradient(135deg,#c17e4e,#8a4f28)",
-  "polished-brass": "linear-gradient(135deg,#ecd08a,#b5893f)",
+  steel: "linear-gradient(135deg,#d7dade,#8b9096)",
+  "black-pvd": "linear-gradient(135deg,#4a4b4f,#1c1d20)",
+  "brass-pvd": "linear-gradient(135deg,#d3ab68,#8f6a34)",
+  "copper-pvd": "linear-gradient(135deg,#c17e4e,#7c4522)",
+  "polished-brass": "linear-gradient(135deg,#f0d28c,#b3862f)",
 };
 
 interface DetailStageProps {
@@ -25,7 +25,7 @@ export default function DetailStage({ product, onVisualize, onBack, onSwitchProd
   return (
     <div className="rv-detail rv-container">
       <button type="button" className="rv-back" onClick={onBack}>
-        <BackIcon /> Tilbage til katalog
+        <BackIcon /> Tilbage til Dørgreb
       </button>
 
       <div className="rv-detail-grid">
@@ -55,9 +55,10 @@ export default function DetailStage({ product, onVisualize, onBack, onSwitchProd
         </div>
 
         <div className="rv-detail-info">
-          <div className="series">{product.series}</div>
-          <div className="num">{product.productNumber}</div>
-          <h1>{product.name}</h1>
+          <h1>{product.productNumber}</h1>
+          <div className="series">
+            {product.series} · {product.name}
+          </div>
           {product.designer && (
             <p className="desig">
               Designet af {product.designer}
@@ -66,47 +67,32 @@ export default function DetailStage({ product, onVisualize, onBack, onSwitchProd
           )}
           <p className="desc">{product.description}</p>
 
-          <dl className="rv-spec-list">
-            <div className="rv-spec-row">
-              <dt>Finish</dt>
-              <dd>{product.finish}</dd>
-            </div>
-            <div className="rv-spec-row">
-              <dt>Materiale</dt>
-              <dd>{product.materials}</dd>
-            </div>
-            {product.diameterMm && (
-              <div className="rv-spec-row">
-                <dt>Diameter</dt>
-                <dd>Ø{product.diameterMm} mm</dd>
-              </div>
-            )}
+          <ul className="rv-bullets">
+            <li>Leveres som standard i {product.finish.toLowerCase()}.</li>
+            <li>Materiale: {product.materials}.</li>
+            {product.diameterMm && <li>Diameter: Ø{product.diameterMm} mm.</li>}
             {product.doorThicknessOptions && (
-              <div className="rv-spec-row">
-                <dt>Dørtykkelse</dt>
-                <dd>{product.doorThicknessOptions.join(" / ")}</dd>
-              </div>
+              <li>Leveres i sæt til dørtykkelse {product.doorThicknessOptions.join(", ")}.</li>
             )}
-            {product.spindleOptions && (
-              <div className="rv-spec-row">
-                <dt>Spindel</dt>
-                <dd>{product.spindleOptions.join(" / ")}</dd>
-              </div>
-            )}
+            {product.spindleOptions && <li>Standard dørgrebspind, {product.spindleOptions.join(" og ")}.</li>}
             {product.standards && product.standards.length > 0 && (
-              <div className="rv-spec-row">
-                <dt>Standarder</dt>
-                <dd>{product.standards.join(", ")}</dd>
-              </div>
+              <li>
+                Grebet er godkendt i henhold til:{" "}
+                {product.standards.map((std, i) => (
+                  <span key={std}>
+                    <span className="std">{std}</span>
+                    {i < product.standards!.length - 1 ? ", " : ""}
+                  </span>
+                ))}
+                .
+              </li>
             )}
-            <div className="rv-spec-row">
-              <dt>Vejl. pris</dt>
-              <dd>
-                {formatDKK(product.priceDKK.value)}
-                <span className="rv-demo-badge">Demo</span>
-              </dd>
-            </div>
-          </dl>
+          </ul>
+
+          <div className="rv-detail-price">
+            {formatDKK(product.priceDKK.value)}
+            <span className="rv-demo-badge">Demo-pris</span>
+          </div>
 
           {product.sustainabilityAttributes.map((attr) => (
             <div className="rv-sustain-tag" key={attr.label}>

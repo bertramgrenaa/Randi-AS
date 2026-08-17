@@ -2,11 +2,13 @@ import { useId } from "react";
 import type { FinishFamily, HandleSilhouette } from "@/data/randi-real-products";
 
 /**
- * Original line-art illustrations of each real handle's silhouette, tinted by its real finish.
+ * Realistic rosette + lever illustration of each real handle, tinted by its real finish.
  * We don't have a verified licence to embed randi.dk's product photography in this prototype,
- * so every product is rendered here instead — geometry keyed to the source descriptions
- * (Nordic's straight birch-bark insert, Wing's tapered aircraft-wing curve, Komé's faceted
- * angled profile, 1060's heavier 16 mm solid rod, 1021's slender hollow tube).
+ * so every product is rendered here instead — a shaded rosette/backplate plus a curved,
+ * cylindrically-shaded lever (geometry keyed to the source descriptions: Nordic's straight
+ * birch-bark insert, Wing's tapered aircraft-wing curve, Komé's faceted angled profile, 1060's
+ * heavier 16 mm solid rod, 1021's slender hollow tube), so it actually reads as door hardware
+ * rather than an abstract line icon.
  *
  * Uses React's `useId()` (not a hand-rolled counter) so gradient ids stay stable between the
  * server-rendered HTML and the client hydration pass — a module-level counter increments
@@ -14,14 +16,38 @@ import type { FinishFamily, HandleSilhouette } from "@/data/randi-real-products"
  */
 
 const FINISH_GRADIENTS: Record<FinishFamily, [string, string]> = {
-  steel: ["#e2ded2", "#a39c8c"],
-  "black-pvd": ["#4a453c", "#211e19"],
-  "brass-pvd": ["#d3ab68", "#96723a"],
-  "copper-pvd": ["#c17e4e", "#8a4f28"],
-  "polished-brass": ["#ecd08a", "#b5893f"],
+  steel: ["#d7dade", "#8b9096"],
+  "black-pvd": ["#4a4b4f", "#1c1d20"],
+  "brass-pvd": ["#d3ab68", "#8f6a34"],
+  "copper-pvd": ["#c17e4e", "#7c4522"],
+  "polished-brass": ["#f0d28c", "#b3862f"],
 };
 
-const BIRCH_BARK: [string, string] = ["#d8c7a1", "#a98a5c"];
+const BIRCH_BARK: [string, string] = ["#e2cea3", "#a9825a"];
+
+const LEVER_PATHS: Record<HandleSilhouette, string> = {
+  "nordic-straight": "M54,98 C 95,93 138,89 176,87",
+  wing: "M54,98 C 92,80 124,66 170,49",
+  kome: "M54,98 L120,98 L174,68",
+  "solid-16mm": "M54,98 C 95,93 138,89 176,87",
+  "classic-hollow": "M54,98 C 95,93 138,89 176,87",
+};
+
+const LEVER_WIDTH: Record<HandleSilhouette, number> = {
+  "nordic-straight": 16,
+  wing: 15,
+  kome: 16,
+  "solid-16mm": 21,
+  "classic-hollow": 10,
+};
+
+function shade(hex: string, amt: number): string {
+  const num = parseInt(hex.replace("#", ""), 16);
+  const r = Math.min(255, Math.max(0, (num >> 16) + amt));
+  const g = Math.min(255, Math.max(0, ((num >> 8) & 0xff) + amt));
+  const b = Math.min(255, Math.max(0, (num & 0xff) + amt));
+  return "#" + (0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16).slice(1);
+}
 
 interface HandleIllustrationProps {
   silhouette: HandleSilhouette;
@@ -37,90 +63,59 @@ export default function HandleIllustration({
   className,
 }: HandleIllustrationProps) {
   const id = useId();
-  const gradId = `${id}-metal`;
-  const barkId = `${id}-bark`;
-  const [c1, c2] = FINISH_GRADIENTS[finishFamily];
-  const [b1, b2] = BIRCH_BARK;
+  const rosetteId = `${id}-r`;
+  const leverId = `${id}-m`;
+  const barkId = `${id}-b`;
+  const shadowId = `${id}-s`;
+
+  const [c0, c1] = FINISH_GRADIENTS[finishFamily];
+  const light = shade(c0, 42);
+  const dark = shade(c1, -20);
+  const leverD = LEVER_PATHS[silhouette] ?? LEVER_PATHS["nordic-straight"];
+  const leverW = LEVER_WIDTH[silhouette] ?? 16;
+  const showBirch = Boolean(hasBirchInsert);
+  const [b0, b1] = BIRCH_BARK;
 
   return (
-    <svg viewBox="0 0 100 100" className={className} role="img" aria-hidden="true">
+    <svg viewBox="0 0 200 160" className={className} role="img" aria-hidden="true">
       <defs>
-        <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor={c1} />
-          <stop offset="100%" stopColor={c2} />
+        <radialGradient id={rosetteId} cx="32%" cy="26%" r="80%">
+          <stop offset="0%" stopColor={light} />
+          <stop offset="55%" stopColor={c0} />
+          <stop offset="100%" stopColor={c1} />
+        </radialGradient>
+        <linearGradient id={leverId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={light} />
+          <stop offset="40%" stopColor={c0} />
+          <stop offset="62%" stopColor={c1} />
+          <stop offset="100%" stopColor={dark} />
         </linearGradient>
-        <linearGradient id={barkId} x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor={b1} />
-          <stop offset="100%" stopColor={b2} />
-        </linearGradient>
+        {showBirch && (
+          <linearGradient id={barkId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={b0} />
+            <stop offset="100%" stopColor={b1} />
+          </linearGradient>
+        )}
+        <filter id={shadowId} x="-60%" y="-60%" width="220%" height="220%">
+          <feDropShadow dx="1.5" dy="3.5" stdDeviation="2.6" floodColor="#000" floodOpacity="0.38" />
+        </filter>
       </defs>
-      {renderSilhouette(silhouette, gradId, hasBirchInsert ? barkId : undefined)}
+      <g filter={`url(#${shadowId})`}>
+        <circle cx="54" cy="98" r="29" fill={`url(#${rosetteId})`} stroke={dark} strokeWidth="1" />
+        <circle cx="54" cy="98" r="4.5" fill={dark} />
+        <path d={leverD} fill="none" stroke={`url(#${leverId})`} strokeWidth={leverW} strokeLinecap="round" strokeLinejoin="round" />
+        {showBirch && (
+          <path
+            d={leverD}
+            fill="none"
+            stroke={`url(#${barkId})`}
+            strokeWidth={leverW}
+            strokeLinecap="butt"
+            strokeDasharray="30 400"
+            strokeDashoffset="-16"
+          />
+        )}
+      </g>
     </svg>
   );
-}
-
-function renderSilhouette(silhouette: HandleSilhouette, gradId: string, barkId?: string) {
-  switch (silhouette) {
-    case "nordic-straight":
-      return (
-        <>
-          <rect x="44" y="12" width="8" height="48" rx="4" fill={`url(#${gradId})`} />
-          <rect x="44" y="12" width="34" height="8" rx="4" fill={`url(#${gradId})`} />
-          {barkId && <rect x="44" y="30" width="8" height="16" rx="3" fill={`url(#${barkId})`} />}
-          <circle cx="48" cy="70" r="2.5" fill="currentColor" opacity="0.25" />
-        </>
-      );
-    case "wing":
-      return (
-        <path
-          d="M46 12 C40 12 38 18 38 24 C38 34 46 36 56 40 C68 45 78 48 82 54 C85 58 84 62 80 63 C74 65 66 60 58 54"
-          fill="none"
-          stroke={`url(#${gradId})`}
-          strokeWidth="8"
-          strokeLinecap="round"
-        />
-      );
-    case "kome":
-      return (
-        <path
-          d="M46 12 L54 12 L54 34 L80 46 L84 56 L78 62 L52 50 L46 50 Z"
-          fill={`url(#${gradId})`}
-          stroke="none"
-        />
-      );
-    case "solid-16mm":
-      return (
-        <>
-          <rect x="42" y="10" width="12" height="50" rx="5" fill={`url(#${gradId})`} />
-          <rect x="42" y="10" width="38" height="12" rx="5" fill={`url(#${gradId})`} />
-        </>
-      );
-    case "classic-hollow":
-      return (
-        <>
-          <rect
-            x="45"
-            y="12"
-            width="6"
-            height="46"
-            rx="3"
-            fill="none"
-            stroke={`url(#${gradId})`}
-            strokeWidth="2.4"
-          />
-          <rect
-            x="45"
-            y="12"
-            width="30"
-            height="6"
-            rx="3"
-            fill="none"
-            stroke={`url(#${gradId})`}
-            strokeWidth="2.4"
-          />
-        </>
-      );
-    default:
-      return null;
-  }
 }

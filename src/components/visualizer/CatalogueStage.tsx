@@ -23,10 +23,9 @@ export default function CatalogueStage({ onSelect }: CatalogueStageProps) {
     <div>
       <div className="rv-cat-head rv-container-narrow">
         <span className="rv-eyebrow">Randi A/S · Grebskatalog</span>
-        <h1>Vælg et greb</h1>
+        <h1>Dørgreb</h1>
         <p>
-          {RANDI_SERIES_INFO.heritage} Nedenfor er et udvalg af Randi-Line®-serien — vælg et greb for at se det
-          på din egen dør.
+          {RANDI_SERIES_INFO.heritage} Vælg et greb for at se det på din egen dør.
         </p>
       </div>
 
@@ -44,28 +43,21 @@ export default function CatalogueStage({ onSelect }: CatalogueStageProps) {
           ))}
         </div>
 
-        <div className="rv-cat-list">
+        <div className="rv-grid">
           {products.map((product) => (
             <RevealOnScroll key={product.id}>
-              <button type="button" className="rv-cat-row" onClick={() => onSelect(product)}>
-                <div className="rv-cat-thumb">
+              <button type="button" className="rv-card" onClick={() => onSelect(product)}>
+                <div className="stage">
                   <HandleIllustration
                     silhouette={product.silhouette}
                     finishFamily={product.finishFamily}
                     hasBirchInsert={product.silhouette === "nordic-straight"}
                   />
                 </div>
-                <div className="rv-cat-info">
-                  <div className="num">{product.productNumber}</div>
-                  <h3>{product.name}</h3>
-                  <div className="meta">
-                    {product.finish} · {product.materials}
-                  </div>
-                  {product.designer && <div className="desig">Designet af {product.designer}</div>}
-                </div>
-                <div className="rv-cat-cta">
-                  Se på min dør
-                  <ArrowIcon />
+                <div className="info">
+                  <div className="sku">{product.productNumber}</div>
+                  <div className="meta">{product.finish}</div>
+                  <div className="name">{product.name}</div>
                 </div>
               </button>
             </RevealOnScroll>
@@ -73,14 +65,5 @@ export default function CatalogueStage({ onSelect }: CatalogueStageProps) {
         </div>
       </div>
     </div>
-  );
-}
-
-function ArrowIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
-      <path d="M5 12h14" />
-      <path d="M13 6l6 6-6 6" />
-    </svg>
   );
 }

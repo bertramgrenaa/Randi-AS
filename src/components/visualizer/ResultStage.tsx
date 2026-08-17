@@ -10,7 +10,7 @@ import {
   recommendAlternatives,
   type ProjectLine,
 } from "@/lib/project-engines";
-import type { VisualizeDoorResult } from "@/lib/ai/visualizeDoor";
+import type { HandlePlacement, VisualizeDoorResult } from "@/lib/ai/visualizeDoor";
 import type { LeadInfo, UploadedPhoto } from "@/types/visualizer";
 import BeforeAfterSlider from "./BeforeAfterSlider";
 import HandleIllustration from "./HandleIllustration";
@@ -36,6 +36,7 @@ export default function ResultStage({
   const [lines, setLines] = useState<ProjectLine[]>([{ productId: product.id, quantity: lead.doorCount }]);
   const [co2Expanded, setCo2Expanded] = useState(false);
   const [requested, setRequested] = useState<"quote" | "call" | null>(null);
+  const [placement, setPlacement] = useState<HandlePlacement>(visualization.placement);
 
   const price = useMemo(() => calculateProjectPrice(lines), [lines]);
   const co2 = useMemo(() => calculateProjectCo2(lines), [lines]);
@@ -78,7 +79,12 @@ export default function ResultStage({
             Din dør med {product.name} {product.productNumber}
           </h1>
         </div>
-        <BeforeAfterSlider photoUrl={photo.dataUrl} product={product} placement={visualization.placement} />
+        <BeforeAfterSlider
+          photoUrl={photo.dataUrl}
+          product={product}
+          placement={placement}
+          onPlacementChange={setPlacement}
+        />
         <p className="rv-sim-note">
           <InfoIcon /> Simuleret visualisering til demoformål — i produktion erstattes denne af en rigtig
           billedgenereringsmodel (se <code>visualizeDoor()</code>).
