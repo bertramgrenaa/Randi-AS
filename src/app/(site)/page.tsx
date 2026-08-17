@@ -1,16 +1,31 @@
 import Link from "next/link";
-import { ArrowRight, FileCheck2, Layers, Leaf, ScanSearch, UploadCloud } from "lucide-react";
+import { ArrowRight, FileCheck2, Layers, Leaf, ScanSearch, Sparkles, UploadCloud } from "lucide-react";
 import { SERIES } from "@/lib/series";
 
 export default function HomePage() {
   return (
     <div>
+      <NewExperienceBanner />
       <Hero />
       <HowItWorks />
       <SeriesGrid />
       <Documentation />
       <ClosingCta />
     </div>
+  );
+}
+
+function NewExperienceBanner() {
+  return (
+    <Link
+      href="/visualizer"
+      className="flex items-center justify-center gap-2 bg-randi-ink px-4 py-2.5 text-center text-xs font-medium text-white/90 transition-colors hover:bg-randi-graphite sm:text-sm"
+    >
+      <Sparkles size={14} className="text-randi-accent" />
+      Nyt: prøv Randi AI Visual Configurator — vælg et rigtigt Randi-greb og se det på din egen
+      dør
+      <ArrowRight size={14} />
+    </Link>
   );
 }
 
