@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./visualizer.css";
 import VisualizerApp from "@/components/visualizer/VisualizerApp";
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "600", "700", "800"],
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
   title: "Randi AI Visual Configurator",
@@ -9,5 +16,9 @@ export const metadata: Metadata = {
 };
 
 export default function VisualizerPage() {
-  return <VisualizerApp />;
+  return (
+    <div className={inter.variable}>
+      <VisualizerApp />
+    </div>
+  );
 }

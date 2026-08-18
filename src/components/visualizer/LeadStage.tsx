@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { BUILDING_TYPES, type LeadInfo } from "@/types/visualizer";
-import type { RandiProduct } from "@/data/randi-real-products";
+import type { RandiHandleProduct } from "@/data/randi-real-products";
 
 interface LeadStageProps {
-  product: RandiProduct;
+  product: RandiHandleProduct;
   lead: LeadInfo;
   onContinue: (lead: LeadInfo) => void;
   onBack: () => void;

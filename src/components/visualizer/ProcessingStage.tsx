@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { RandiProduct } from "@/data/randi-real-products";
-import { getVisualizeDoorProvider, type VisualizeDoorResult } from "@/lib/ai/visualizeDoor";
+import type { RandiHandleProduct, DoorTypeKey } from "@/data/randi-real-products";
+import { classifyDoorPhoto } from "@/lib/classifyDoorPhoto";
 import type { UploadedPhoto } from "@/types/visualizer";
 
 interface ProcessingStageProps {
   photo: UploadedPhoto;
-  product: RandiProduct;
-  onDone: (result: VisualizeDoorResult) => void;
+  product: RandiHandleProduct;
+  onDone: (doorType: DoorTypeKey) => void;
 }
 
 const CAPTION_MS = 950;
@@ -16,21 +16,15 @@ const CAPTION_MS = 950;
 export default function ProcessingStage({ photo, product, onDone }: ProcessingStageProps) {
   const captions = [
     "Analyserer dit dørbillede...",
-    "Identificerer dørens geometri...",
-    `Placerer Randi ${product.productNumber}...`,
-    "Klargør din visualisering...",
+    "Genkender dørtype ud fra farvetone...",
+    `Klargør Randi ${product.productNumber} på din dør...`,
+    "Færdiggør din visualisering...",
   ];
   const [index, setIndex] = useState(0);
   const doneRef = useRef(false);
 
   useEffect(() => {
-    const provider = getVisualizeDoorProvider();
-    const workPromise = provider({
-      imageDataUrl: photo.dataUrl,
-      imageWidth: photo.width,
-      imageHeight: photo.height,
-      selectedProduct: product,
-    });
+    const workPromise = classifyDoorPhoto(photo.dataUrl);
 
     const timer = setInterval(() => {
       setIndex((i) => Math.min(i + 1, captions.length - 1));
@@ -42,7 +36,7 @@ export default function ProcessingStage({ photo, product, onDone }: ProcessingSt
       if (doneRef.current) return;
       doneRef.current = true;
       clearInterval(timer);
-      onDone(result as VisualizeDoorResult);
+      onDone(result.doorType);
     });
 
     return () => clearInterval(timer);

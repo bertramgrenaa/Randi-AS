@@ -1,14 +1,14 @@
 "use client";
 
 import { useRef, useState } from "react";
-import type { RandiProduct } from "@/data/randi-real-products";
+import type { RandiHandleProduct } from "@/data/randi-real-products";
 import type { UploadedPhoto } from "@/types/visualizer";
 
 const ACCEPTED = ["image/png", "image/jpeg", "image/webp"];
 const MAX_BYTES = 15 * 1024 * 1024;
 
 interface UploadStageProps {
-  product: RandiProduct;
+  product: RandiHandleProduct;
   onContinue: (photo: UploadedPhoto) => void;
   onBack: () => void;
 }

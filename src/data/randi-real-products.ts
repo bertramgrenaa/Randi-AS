@@ -1,22 +1,23 @@
 /**
- * Real Randi A/S product reference data.
+ * Real Randi A/S product reference data for the visual configurator demo.
  *
- * Sourced from randi.dk product pages and third-party retailer/design listings that mirror
- * them (larsvejen.dk, cfmoller.com, villahus.com, williams-ironmongery.co.uk) — direct fetches
- * to randi.dk itself were blocked by this environment's network egress, so this was compiled
- * from indexed search snippets rather than a live crawl. Product numbers, series names,
- * designers, materials and technical facts (spindle sizes, door-thickness ranges, standards)
- * reflect what those sources state. Nothing here is invented.
+ * This demo is deliberately trimmed to 4 door handles, each backed by a real AI-composited
+ * before/after photo pair supplied by the user (via a consumer image-editing model, not by this
+ * app) for BOTH reference door types below — so any of the 4 handles can be shown on either
+ * door, and any door photo a user uploads works with any handle. 1078.00 is Randi-Line® Nordic
+ * Straight, independently researched from randi.dk and designer sources (see `verified: true`
+ * and `standards`); the other three product numbers/finishes are exactly as supplied with their
+ * reference photos and are NOT independently verified against randi.dk in this prototype.
  *
- * Prices, CO2e and weight are NOT public on randi.dk and are explicitly marked as demo values
- * (see `isDemo` flags) — replace with Randi's real ERP price feed and LCA/EPD data.
+ * Product photography is the user-supplied reference photos (not scraped/reproduced randi.dk
+ * photography) — `handlePhoto` is a clean product-only crop, `afterSrc` are the composited
+ * before/after pairs used in the visualizer result.
  *
- * Product photography is not reproduced here (no verified licence to embed it in this
- * prototype) — `illustration` instead points at an original line-art rendering keyed to the
- * product's real silhouette and finish, built in <HandleIllustration />.
+ * Prices, CO2e are NOT public and are explicitly marked as demo values (see `isDemo` flags) —
+ * replace with Randi's real ERP price feed and LCA/EPD data. `co2Note` is a short, honestly
+ * hedged explanation of the *direction* the real number would likely move in and why (grounded
+ * in genuine, cited sustainability research — see co2Note text) — not a fabricated calculation.
  */
-
-export type FinishFamily = "steel" | "black-pvd" | "brass-pvd" | "copper-pvd" | "polished-brass";
 
 export interface DemoValue {
   value: number;
@@ -24,310 +25,199 @@ export interface DemoValue {
   note: "Demo data – replace with Randi LCA/product data";
 }
 
-export interface SustainabilityAttribute {
-  label: string;
-  detail: string;
-}
-
-export type HandleSilhouette = "nordic-straight" | "wing" | "kome" | "solid-16mm" | "classic-hollow";
-
-export interface RandiProduct {
-  id: string;
-  productNumber: string;
-  name: string;
-  series: "Randi-Line®" | "Randi-Line® Design";
-  category: "Dørgreb" | "Vinduesgreb";
-  silhouette: HandleSilhouette;
-  finish: string;
-  finishFamily: FinishFamily;
-  materials: string;
-  designer?: string;
-  designerNote?: string;
-  description: string;
-  diameterMm?: number;
-  doorThicknessOptions?: string[];
-  spindleOptions?: string[];
-  standards?: string[];
-  priceDKK: DemoValue;
-  co2eKg: DemoValue;
-  weightG: DemoValue;
-  sustainabilityAttributes: SustainabilityAttribute[];
-  recommendedAlternativeIds: string[];
-  sourceUrls: string[];
-}
-
 function demo(value: number): DemoValue {
   return { value, isDemo: true, note: "Demo data – replace with Randi LCA/product data" };
 }
 
-export const RANDI_SERIES_INFO = {
-  founded: 1878,
-  origin: "Randers, Danmark",
-  heritage:
-    "Randi har siden 1878 støbt dørgreb i rustfrit stål og messing fra det første værksted i Randers, og er i dag et af Skandinaviens mest anvendte navne inden for arkitektonisk beslag.",
-  lines: [
-    {
-      name: "Randi-Line®",
-      description:
-        "Det komplette moderne sortiment af dørgreb og beslag i rustfrit stål, udviklet til funktion, holdbarhed og enkelt design.",
-    },
-    {
-      name: "Randi-Line® Design",
-      description:
-        "PVD-overfladebehandlede varianter af Randi-Line® (børstet messing, kobber, sort) — udviklet til høj slidstyrke og korrosionsbestandighed.",
-    },
-  ],
+export type DoorTypeKey = "hvid" | "trae";
+
+export interface DoorTypeInfo {
+  key: DoorTypeKey;
+  label: string;
+  beforeSrc: string;
+  aspectRatio: string;
+}
+
+export const DOOR_TYPES: Record<DoorTypeKey, DoorTypeInfo> = {
+  hvid: {
+    key: "hvid",
+    label: "Hvid fyldningsdør",
+    beforeSrc: "/visualizer-examples/hvid-dor-foer.png",
+    aspectRatio: "257 / 720",
+  },
+  trae: {
+    key: "trae",
+    label: "Egetræsdør",
+    beforeSrc: "/visualizer-examples/trae-dor-foer.png",
+    aspectRatio: "248 / 619",
+  },
 };
 
-export const RANDI_PRODUCTS: RandiProduct[] = [
+export interface RandiInsight {
+  title: string;
+  body: string;
+}
+
+export interface RandiHandleProduct {
+  id: string;
+  kind: "handle";
+  productNumber: string;
+  name: string;
+  finish: string;
+  designer?: string;
+  description?: string;
+  standards?: string[];
+  /** True only for products independently researched against randi.dk/designer sources. */
+  verified: boolean;
+  handlePhoto: string;
+  afterSrc: Record<DoorTypeKey, string>;
+  priceDKK: DemoValue;
+  co2eKg: DemoValue;
+  co2Note: string;
+  insight: RandiInsight;
+}
+
+export const RANDI_PRODUCTS: RandiHandleProduct[] = [
   {
-    id: "nordic-1078-00",
+    id: "1078-00",
+    kind: "handle",
     productNumber: "1078.00",
     name: "Randi-Line® Nordic Straight",
-    series: "Randi-Line®",
-    category: "Dørgreb",
-    silhouette: "nordic-straight",
     finish: "Børstet rustfrit stål + birkebark",
-    finishFamily: "steel",
-    materials: "Rustfrit stål (satin) med indlæg af birkebark",
     designer: "Lars Vejen / Njordrum",
-    designerNote:
-      "Formgivet omkring naturens egen intelligens — en simpel geometrisk form, hvor birkebarken både er materiale og funktion.",
     description:
-      "Nordic er en komposition af enkle geometriske former og naturmaterialer. Indlægget er birkebark, som er naturligt antibakterielt og gør grebet modstandsdygtigt over for bakterier — særligt relevant på kontaktflader mange rører ved dagligt.",
-    diameterMm: 19,
-    doorThicknessOptions: ["34–46 mm", "47–58 mm", "59–70 mm", "71–82 mm"],
-    spindleOptions: ["8×8 mm"],
+      "Nordic er en komposition af enkle geometriske former og naturmaterialer. Indlægget er birkebark, som traditionelt er brugt i nordisk folkemedicin for sine antiseptiske egenskaber.",
     standards: ["DS/EN 1906:2012", "DS/EN 179:2008"],
+    verified: true,
+    handlePhoto: "/visualizer-examples/handle-1078.png",
+    afterSrc: {
+      hvid: "/visualizer-examples/hvid-dor-efter-1078.png",
+      trae: "/visualizer-examples/trae-dor-efter-1078.png",
+    },
     priceDKK: demo(1290),
     co2eKg: demo(4.8),
-    weightG: demo(410),
-    sustainabilityAttributes: [
-      { label: "Birkebark", detail: "Naturligt antibakterielt materiale — reducerer bakterievækst på kontaktfladen." },
-      { label: "Fornybart indlæg", detail: "Birkebark er et biobaseret restmateriale fra skovbrug, i modsætning til rent metal/plast." },
-    ],
-    recommendedAlternativeIds: ["nordic-1078-20", "kome-1073-00"],
-    sourceUrls: ["https://www.randi.dk/en/assortment/1078-00/", "https://www.larsvejen.dk/portfolio/nordic-straight-door-handle/"],
+    co2Note:
+      "Hovedparten af aftrykket for dette greb kommer fra den rustfrie stålkonstruktion — smelteprocessen for stål er energitung. Birkebark-indlægget er et biobaseret restmateriale fra skovbrug og bidrager markant mindre end hvis hele grebet var støbt i metal, hvilket trækker totalen en smule ned sammenlignet med et fuldt metalgreb i samme størrelse.",
+    insight: {
+      title: "Hvorfor birkebark?",
+      body: "Birkebark indeholder betulin, et stof med dokumenteret antibakteriel effekt over for flere bakterietyper i laboratorieforsøg, og har en lang tradition i nordisk folkemedicin som sårplaster og antiseptisk middel. Det gør ikke i sig selv grebet til en klinisk testet antibakteriel kontaktflade — det er ikke undersøgt på samme måde som f.eks. antimikrobielle kobberoverflader — men birkebark er et biobaseret restmateriale fra skovbrug: et fornybart alternativ til at støbe hele grebet i metal eller plast.",
+    },
   },
   {
-    id: "nordic-1078-20",
-    productNumber: "1078.20",
-    name: "Randi-Line® Nordic Straight PVD",
-    series: "Randi-Line® Design",
-    category: "Dørgreb",
-    silhouette: "nordic-straight",
-    finish: "PVD-behandlet stål + birkebark",
-    finishFamily: "black-pvd",
-    materials: "PVD-overfladebehandlet rustfrit stål med indlæg af birkebark",
-    designer: "Lars Vejen / Njordrum",
-    description:
-      "Samme Nordic-formsprog som 1078.00, men med Randi-Line® Design PVD-overfladebehandling for øget slidstyrke og korrosionsbestandighed — velegnet til udsatte indgangspartier.",
-    diameterMm: 19,
-    doorThicknessOptions: ["34–46 mm", "47–58 mm", "59–70 mm", "71–82 mm"],
-    spindleOptions: ["8×8 mm"],
-    standards: ["DS/EN 1906:2012", "DS/EN 179:2008"],
-    priceDKK: demo(1590),
-    co2eKg: demo(5.6),
-    weightG: demo(410),
-    sustainabilityAttributes: [
-      { label: "Birkebark", detail: "Naturligt antibakterielt materiale — reducerer bakterievækst på kontaktfladen." },
-      { label: "PVD-levetid", detail: "PVD-behandlingen forlænger overfladens levetid og reducerer behov for udskiftning." },
-    ],
-    recommendedAlternativeIds: ["nordic-1078-00"],
-    sourceUrls: ["https://www.randi.dk/en/randi-line-design-pvd-surface-treatment/"],
-  },
-  {
-    id: "wing-1074-00",
-    productNumber: "1074.00",
-    name: "Randi-Line® Wing",
-    series: "Randi-Line®",
-    category: "Dørgreb",
-    silhouette: "wing",
-    finish: "Børstet rustfrit stål",
-    finishFamily: "steel",
-    materials: "Rustfrit stål (satin), AISI 304",
-    designer: "AART Designers",
-    designerNote: "Prisvindende design, der refererer til formen på en flyvinge.",
-    description:
-      "Wing er et elegant Ø19 mm greb, hvis stramme, bøjede linje er inspireret af en flyvinges profil. Leveres parvis til dørtykkelse 40 mm, 34–58 mm eller 58–82 mm.",
-    diameterMm: 19,
-    doorThicknessOptions: ["40 mm", "34–58 mm", "58–82 mm"],
-    standards: [],
+    id: "1010-90",
+    kind: "handle",
+    productNumber: "1010.90",
+    name: "Randi 1010.90",
+    finish: "Poleret messing",
+    verified: false,
+    handlePhoto: "/visualizer-examples/handle-1010-90.png",
+    afterSrc: {
+      hvid: "/visualizer-examples/hvid-dor-efter-1010-90.png",
+      trae: "/visualizer-examples/trae-dor-efter-1010-90.png",
+    },
     priceDKK: demo(950),
     co2eKg: demo(4.1),
-    weightG: demo(380),
-    sustainabilityAttributes: [],
-    recommendedAlternativeIds: ["wing-1074-90", "wing-1074-20"],
-    sourceUrls: ["https://www.randi.dk/en/assortment/1074-00/", "https://williams-ironmongery.co.uk/portfolio-items/1074/"],
+    co2Note:
+      "Messingproduktion (kobber legeret med zink) er energikrævende, men da messing kan omsmeltes og genanvendes uden kvalitetstab, regnes en del af den indlejrede energi typisk med som \"betalt tilbage\" over flere livscyklusser, hvis metallet holdes i kredsløb frem for at ende som affald.",
+    insight: {
+      title: "Messing kan genanvendes i det uendelige",
+      body: "Messing (en kobber-zink-legering) kan omsmeltes og genbruges uden at miste sine egenskaber, og det kræver typisk kun en brøkdel — i industrikilder angivet til omkring 10-15% — af den energi, det tager at fremstille ny messing fra råmaterialer. Sammen med bl.a. glas er messing et af de få materialer med reel \"closed-loop\"-genanvendelighed: det kan blive til nyt messing af samme kvalitet, igen og igen.",
+    },
   },
   {
-    id: "wing-1074-90",
-    productNumber: "1074.90",
-    name: "Randi-Line® Wing",
-    series: "Randi-Line®",
-    category: "Dørgreb",
-    silhouette: "wing",
-    finish: "Poleret messing",
-    finishFamily: "polished-brass",
-    materials: "Messing, poleret",
-    designer: "AART Designers",
-    description:
-      "Wing-grebet i poleret messing — et varmt, klassisk udtryk der bevarer det samme aerodynamisk inspirerede formsprog som stål-varianten.",
-    diameterMm: 19,
-    doorThicknessOptions: ["40 mm", "34–58 mm", "58–82 mm"],
-    priceDKK: demo(1190),
-    co2eKg: demo(5.3),
-    weightG: demo(395),
-    sustainabilityAttributes: [],
-    recommendedAlternativeIds: ["wing-1074-00"],
-    sourceUrls: ["https://ca.pinterest.com/pin/1060034831037618053/"],
+    id: "1070-60",
+    kind: "handle",
+    productNumber: "1070.60 PVD",
+    name: "Randi 1070.60 PVD Coated",
+    finish: "PVD-behandlet messing",
+    verified: false,
+    handlePhoto: "/visualizer-examples/handle-1070-60.png",
+    afterSrc: {
+      hvid: "/visualizer-examples/hvid-dor-efter-1070-60.png",
+      trae: "/visualizer-examples/trae-dor-efter-1070-60.png",
+    },
+    priceDKK: demo(1590),
+    co2eKg: demo(5.2),
+    co2Note:
+      "Messing-kernen bidrager på linje med andre messingprodukter, men selve PVD-behandlingen er en tør vakuumproces uden de kemiske bade og den spildevandsbelastning, traditionel galvanisering medfører — det trækker overfladebehandlingens andel af aftrykket ned sammenlignet med et lakeret eller galvaniseret greb, samtidig med at den høje slidstyrke forlænger produktets levetid.",
+    insight: {
+      title: "Hvorfor PVD-behandling?",
+      body: "PVD (Physical Vapor Deposition) er en tør vakuumproces, hvor metal fordampes og lægges som en tynd overfladebelægning — modsat traditionel galvanisering, der bruger kemiske bade (ofte med cyanid, stærke syrer eller seksværdigt krom) og genererer spildevand, der skal renses. PVD-belægninger er generelt anerkendt i branchen for høj hårdhed og slidstyrke, hvilket forlænger produktets levetid sammenlignet med lak eller almindelig galvanisering — færre udskiftninger over tid, samme greb.",
+    },
   },
   {
-    id: "wing-1074-20",
-    productNumber: "1074.20",
-    name: "Randi-Line® Wing PVD",
-    series: "Randi-Line® Design",
-    category: "Dørgreb",
-    silhouette: "wing",
-    finish: "Sort PVD",
-    finishFamily: "black-pvd",
-    materials: "PVD-overfladebehandlet stål",
-    designer: "AART Designers",
-    description:
-      "Wing i sort PVD — en mørk, mat variant til moderne facader, med samme slidstyrke-fordele som Randi-Line® Design-serien.",
-    diameterMm: 19,
-    doorThicknessOptions: ["40 mm", "34–58 mm", "58–82 mm"],
-    priceDKK: demo(1290),
-    co2eKg: demo(5.0),
-    weightG: demo(380),
-    sustainabilityAttributes: [],
-    recommendedAlternativeIds: ["wing-1074-00"],
-    sourceUrls: ["https://www.villahus.com/shop/113-black-door-handles/4383-randi-door-handle---wing---black-pvd---model-1074/"],
-  },
-  {
-    id: "kome-1073-00",
-    productNumber: "1073.00",
-    name: "Randi-Line® Komé",
-    series: "Randi-Line®",
-    category: "Dørgreb",
-    silhouette: "kome",
+    id: "1061-00",
+    kind: "handle",
+    productNumber: "1061.00",
+    name: "Randi 1061.00",
     finish: "Børstet rustfrit stål",
-    finishFamily: "steel",
-    materials: "Rustfrit stål (satin)",
-    designer: "C.F. Møller Architects",
-    designerNote:
-      "Grundlagt i arkitektur, funktion og ergonomi — lodrette kanter og skrående flader giver et markant, men roligt udtryk.",
-    description:
-      "Komé er et symmetrisk, ergonomisk greb tegnet som en komplet serie: dørgreb, vridere, rosetter og langskilte i ét sammenhængende formsprog, der underordner sig arkitekturens linjer.",
-    diameterMm: 19,
-    standards: [],
-    priceDKK: demo(1450),
-    co2eKg: demo(4.9),
-    weightG: demo(420),
-    sustainabilityAttributes: [],
-    recommendedAlternativeIds: ["nordic-1078-00", "kome-rw1073"],
-    sourceUrls: ["https://www.randi.dk/en/assortment/1073-00/", "https://www.cfmoller.com/p/Randi-Line-Kome-i2308.html"],
-  },
-  {
-    id: "kome-rw1073",
-    productNumber: "RW1073",
-    name: "Randi-Line® Komé vinduesgreb",
-    series: "Randi-Line®",
-    category: "Vinduesgreb",
-    silhouette: "kome",
-    finish: "Børstet rustfrit stål",
-    finishFamily: "steel",
-    materials: "Rustfrit stål (satin)",
-    designer: "C.F. Møller Architects",
-    description:
-      "Krum Komé-paskvilgreb til vinduer, der matcher dørserien i samme formsprog. Randi-Line® vinduesgreb fås som standard med 35 og 43 mm spindellængde.",
-    spindleOptions: ["7×7 mm", "8×8 mm"],
-    priceDKK: demo(495),
-    co2eKg: demo(1.4),
-    weightG: demo(160),
-    sustainabilityAttributes: [],
-    recommendedAlternativeIds: ["kome-1073-00"],
-    sourceUrls: ["https://www.villahus.com/shop/62-espagnolette---patio/3825-cranked-randi-linereg-kome-window-handle-left-oe14-mm-solid/"],
-  },
-  {
-    id: "solid-1060-00",
-    productNumber: "1060.00",
-    name: "Randi-Line® 1060",
-    series: "Randi-Line®",
-    category: "Dørgreb",
-    silhouette: "solid-16mm",
-    finish: "Børstet rustfrit stål",
-    finishFamily: "steel",
-    materials: "Rustfrit stål (satin), AISI 304",
-    designer: "C.F. Møller Architects",
-    description:
-      "Et massivt 16 mm greb, tegnet som en komplet designlinje af C.F. Møller Architects. Leveres parvis til dørtykkelse 40 mm, 34–58 mm eller 58–82 mm.",
-    doorThicknessOptions: ["40 mm", "34–58 mm", "58–82 mm"],
-    spindleOptions: ["8×8 mm", "9×9 mm"],
-    standards: ["DS/EN 1906:2012", "DIN 18273:2015-07"],
+    verified: false,
+    handlePhoto: "/visualizer-examples/handle-1061.png",
+    afterSrc: {
+      hvid: "/visualizer-examples/hvid-dor-efter-1061.png",
+      trae: "/visualizer-examples/trae-dor-efter-1061.png",
+    },
     priceDKK: demo(890),
     co2eKg: demo(3.9),
-    weightG: demo(350),
-    sustainabilityAttributes: [],
-    recommendedAlternativeIds: ["kome-1073-00", "nordic-1078-00"],
-    sourceUrls: ["https://www.randi.dk/en/assortment/1060-00/"],
-  },
-  {
-    id: "classic-1021-00",
-    productNumber: "1021.00",
-    name: "Randi-Line® 1021",
-    series: "Randi-Line®",
-    category: "Dørgreb",
-    silhouette: "classic-hollow",
-    finish: "Børstet rustfrit stål",
-    finishFamily: "steel",
-    materials: "Rustfrit stål (satin), AISI 304",
-    description:
-      "Et lige, klassisk Ø19 mm greb i hult design. Leveres parvis til dørtykkelse 40 mm, 34–58 mm eller 58–82 mm.",
-    diameterMm: 19,
-    doorThicknessOptions: ["40 mm", "34–58 mm", "58–82 mm"],
-    spindleOptions: ["8×8 mm", "9×9 mm"],
-    standards: ["DS/EN 1906:2012", "DIN 18273:2015-07"],
-    priceDKK: demo(650),
-    co2eKg: demo(3.2),
-    weightG: demo(310),
-    sustainabilityAttributes: [],
-    recommendedAlternativeIds: ["classic-1021-20", "solid-1060-00"],
-    sourceUrls: ["https://www.randi.dk/en/assortment/1021-00/"],
-  },
-  {
-    id: "classic-1021-20",
-    productNumber: "1021.20",
-    name: "Randi-Line® 1021 PVD",
-    series: "Randi-Line® Design",
-    category: "Dørgreb",
-    silhouette: "classic-hollow",
-    finish: "Sort PVD",
-    finishFamily: "black-pvd",
-    materials: "PVD-overfladebehandlet stål",
-    description: "1021 i sort PVD-overfladebehandling — samme klassiske form, mørkt og mat udtryk.",
-    diameterMm: 19,
-    doorThicknessOptions: ["40 mm", "34–58 mm", "58–82 mm"],
-    spindleOptions: ["8×8 mm", "9×9 mm"],
-    priceDKK: demo(890),
-    co2eKg: demo(3.8),
-    weightG: demo(310),
-    sustainabilityAttributes: [],
-    recommendedAlternativeIds: ["classic-1021-00"],
-    sourceUrls: ["https://www.randi.dk/en/assortment/1021-20-pvd-coated/"],
+    co2Note:
+      "Rustfrit ståls produktion er relativt energitung, primært fra smelteprocessen og legeringen med krom/nikkel, men da metallet kan genanvendes næsten uendeligt uden at miste styrke eller korrosionsbestandighed, og grebet har lang levetid som bygningsbeslag, er det årlige aftryk over produktets brugstid lavere end for materialer, der skal udskiftes oftere.",
+    insight: {
+      title: "Rustfrit stål: næsten uendeligt genanvendeligt",
+      body: "Rustfrit stål (f.eks. AISI 304) kan omsmeltes og genbruges igen og igen uden at miste sin styrke eller korrosionsbestandighed. Den globale genanvendelsesrate for rustfrit stål ligger typisk over 90%, og det høje skrotværdi gør det til et af de mest reelt cirkulære metaller i byggeriet — ikke bare teoretisk genanvendeligt, men rent faktisk genanvendt i stor skala.",
+    },
   },
 ];
 
-export function getProductById(id: string): RandiProduct | undefined {
-  return RANDI_PRODUCTS.find((p) => p.id === id);
+export interface RandiAccessory {
+  id: string;
+  kind: "accessory";
+  productNumber: string;
+  category: string;
+  name: string;
+  finish: string;
+  verified: boolean;
+  handlePhoto: string;
+  priceDKK: DemoValue;
+  co2eKg: DemoValue;
 }
 
-export function getAlternatives(product: RandiProduct): RandiProduct[] {
-  return product.recommendedAlternativeIds
-    .map((id) => getProductById(id))
-    .filter((p): p is RandiProduct => Boolean(p));
+/**
+ * Complementary Randi-Line® products (window handles, escutcheons, pull handles, washroom
+ * fittings) for the "Fuldend udtrykket" cross-sell section. Product numbers/finishes are as
+ * supplied with the reference photos, not independently verified against randi.dk. Price/CO2e
+ * follow the same demo-value convention as the door handles above.
+ */
+export const ACCESSORIES: RandiAccessory[] = [
+  { id: "acc-1100-60", kind: "accessory", productNumber: "1100.60", category: "Toiletgarniture", name: "Randi 1100.60 PVD Coated", finish: "PVD-behandlet kobber", verified: false, handlePhoto: "/visualizer-examples/acc-1100-60.png", priceDKK: demo(450), co2eKg: demo(2.1) },
+  { id: "acc-1201-90", kind: "accessory", productNumber: "1201.90", category: "Langskilt", name: "Randi 1201.90", finish: "Børstet messing", verified: false, handlePhoto: "/visualizer-examples/acc-1201-90.png", priceDKK: demo(380), co2eKg: demo(1.4) },
+  { id: "acc-1534", kind: "accessory", productNumber: "1534.00", category: "Stangergreb", name: "Randi 1534.00", finish: "Poleret stål", verified: false, handlePhoto: "/visualizer-examples/acc-1534.png", priceDKK: demo(890), co2eKg: demo(3.6) },
+  { id: "acc-1736-1738-90", kind: "accessory", productNumber: "1736-1738.90", category: "Vinduesgreb", name: "Randi 1736-1738.90", finish: "Poleret messing", verified: false, handlePhoto: "/visualizer-examples/acc-1736-1738-90.png", priceDKK: demo(650), co2eKg: demo(2.8) },
+  { id: "acc-1746-1748-00", kind: "accessory", productNumber: "1746-1748.00", category: "Vinduesgreb", name: "Randi 1746-1748.00", finish: "Børstet stål", verified: false, handlePhoto: "/visualizer-examples/acc-1746-1748-00.png", priceDKK: demo(590), co2eKg: demo(2.5) },
+  { id: "acc-1768-1770-00", kind: "accessory", productNumber: "1768-1770.00", category: "Vinduesgreb", name: "Randi 1768-1770.00", finish: "Børstet stål + birkebark", verified: false, handlePhoto: "/visualizer-examples/acc-1768-1770-00.png", priceDKK: demo(690), co2eKg: demo(2.6) },
+  { id: "acc-2978", kind: "accessory", productNumber: "2978.X00", category: "Affaldsspand", name: "Randi 2978", finish: "Børstet rustfrit stål", verified: false, handlePhoto: "/visualizer-examples/acc-2978.png", priceDKK: demo(1290), co2eKg: demo(5.5) },
+  { id: "acc-7706", kind: "accessory", productNumber: "7706", category: "Vinduesgreb", name: "Randi 7706", finish: "Poleret stål", verified: false, handlePhoto: "/visualizer-examples/acc-7706.png", priceDKK: demo(590), co2eKg: demo(2.5) },
+  { id: "acc-7826-06", kind: "accessory", productNumber: "7826.06", category: "Glashylde", name: "Randi 7826.06", finish: "Glas + børstet stål", verified: false, handlePhoto: "/visualizer-examples/acc-7826-06.png", priceDKK: demo(750), co2eKg: demo(3.2) },
+  { id: "acc-p3520-90", kind: "accessory", productNumber: "P3520.90", category: "Møbelgreb", name: "Randi P3520.90", finish: "Poleret messing", verified: false, handlePhoto: "/visualizer-examples/acc-p3520-90.png", priceDKK: demo(320), co2eKg: demo(1.1) },
+];
+
+export type CatalogueItem = RandiHandleProduct | RandiAccessory;
+
+export const ALL_ITEMS: CatalogueItem[] = [...RANDI_PRODUCTS, ...ACCESSORIES];
+
+export function getProductById(id: string): CatalogueItem | undefined {
+  return ALL_ITEMS.find((p) => p.id === id);
 }
 
-export function getDoorHandles(): RandiProduct[] {
-  return RANDI_PRODUCTS.filter((p) => p.category === "Dørgreb");
+export function isAccessory(item: CatalogueItem): item is RandiAccessory {
+  return item.kind === "accessory";
+}
+
+/**
+ * A few products (the ones without a distinct series name) have `name` set to literally
+ * "Randi " + their product number, so a plain `${name} ${productNumber}` would read as e.g.
+ * "Randi 1010.90 1010.90". This returns the name with the number appended only when the name
+ * doesn't already contain it.
+ */
+export function productDisplayLabel(item: { name: string; productNumber: string }): string {
+  return item.name.includes(item.productNumber) ? item.name : `${item.name} ${item.productNumber}`;
 }

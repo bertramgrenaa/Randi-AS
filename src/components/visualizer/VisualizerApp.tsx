@@ -2,8 +2,7 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
-import { RANDI_PRODUCTS, type RandiProduct } from "@/data/randi-real-products";
-import type { VisualizeDoorResult } from "@/lib/ai/visualizeDoor";
+import { RANDI_PRODUCTS, type DoorTypeKey, type RandiHandleProduct } from "@/data/randi-real-products";
 import { EMPTY_LEAD, type LeadInfo, type Stage, type UploadedPhoto } from "@/types/visualizer";
 import CatalogueStage from "./CatalogueStage";
 import DetailStage from "./DetailStage";
@@ -12,18 +11,16 @@ import UploadStage from "./UploadStage";
 import ProcessingStage from "./ProcessingStage";
 import ResultStage from "./ResultStage";
 
-const SERIES_LIST = ["Randi-Line®", "Randi-Line® Design"] as const;
-
 export default function VisualizerApp() {
   const [stage, setStage] = useState<Stage>("catalogue");
-  const [product, setProduct] = useState<RandiProduct | null>(null);
+  const [product, setProduct] = useState<RandiHandleProduct | null>(null);
   const [lead, setLead] = useState<LeadInfo>(EMPTY_LEAD);
   const [photo, setPhoto] = useState<UploadedPhoto | null>(null);
-  const [visualization, setVisualization] = useState<VisualizeDoorResult | null>(null);
+  const [doorType, setDoorType] = useState<DoorTypeKey | null>(null);
   const [productsOpen, setProductsOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
 
-  function handleSelectProduct(p: RandiProduct) {
+  function handleSelectProduct(p: RandiHandleProduct) {
     setProduct(p);
     setStage("detail");
   }
@@ -42,13 +39,13 @@ export default function VisualizerApp() {
     setStage("processing");
   }
 
-  function handleProcessingDone(result: VisualizeDoorResult) {
-    setVisualization(result);
+  function handleProcessingDone(result: DoorTypeKey) {
+    setDoorType(result);
     setStage("result");
   }
 
   /** Recommendation cards can switch the primary product without losing the uploaded photo. */
-  function handleSelectDifferentProduct(p: RandiProduct) {
+  function handleSelectDifferentProduct(p: RandiHandleProduct) {
     setProduct(p);
     setStage("processing");
   }
@@ -56,14 +53,14 @@ export default function VisualizerApp() {
   function handleRestart() {
     setProduct(null);
     setPhoto(null);
-    setVisualization(null);
+    setDoorType(null);
     setStage("catalogue");
   }
 
   function handleLogoClick() {
     setProduct(null);
     setPhoto(null);
-    setVisualization(null);
+    setDoorType(null);
     setStage("catalogue");
   }
 
@@ -84,14 +81,15 @@ export default function VisualizerApp() {
     <div className="rv" data-visualizer-stage={stage}>
       <div className="rv-shell">
         <div className="rv-awards">
-          <span aria-hidden="true">🏆</span>
+          <MedalIcon />
           <span>AWARDS</span>
         </div>
 
         <header className="rv-topbar">
           <div className="rv-topbar-inner">
             <button type="button" className="rv-logo" onClick={handleLogoClick}>
-              <span className="rv-logo-mark">R</span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img className="rv-logo-mark" src="/visualizer-examples/randi-icon-mark.png" alt="" />
               <span className="rv-logo-text">
                 <span className="name">Randi</span>
                 <br />
@@ -131,30 +129,27 @@ export default function VisualizerApp() {
                       zIndex: 40,
                     }}
                   >
-                    {SERIES_LIST.map((s) => (
-                      <button
-                        key={s}
-                        type="button"
-                        onClick={() => {
-                          setProductsOpen(false);
-                          setStage("catalogue");
-                        }}
-                        style={{
-                          display: "block",
-                          width: "100%",
-                          textAlign: "left",
-                          padding: "9px 12px",
-                          borderRadius: 4,
-                          fontSize: 13,
-                          background: "none",
-                          border: "none",
-                          cursor: "pointer",
-                          color: "var(--rv-ink)",
-                        }}
-                      >
-                        {s}
-                      </button>
-                    ))}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProductsOpen(false);
+                        setStage("catalogue");
+                      }}
+                      style={{
+                        display: "block",
+                        width: "100%",
+                        textAlign: "left",
+                        padding: "9px 12px",
+                        borderRadius: 4,
+                        fontSize: 13,
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        color: "var(--rv-ink)",
+                      }}
+                    >
+                      Dørgreb
+                    </button>
                   </div>
                 )}
               </div>
@@ -182,7 +177,11 @@ export default function VisualizerApp() {
             </nav>
 
             <div className="rv-topbar-actions">
-              <span className="rv-lang">🇩🇰 Dansk</span>
+              <span className="rv-lang">
+                <DanishFlagIcon />
+                Dansk
+                <ChevronDown />
+              </span>
               <form className="rv-search" onSubmit={handleSearch}>
                 <input ref={searchRef} type="search" placeholder="Søg..." aria-label="Søg efter produkt" />
                 <button type="submit" aria-label="Søg">
@@ -196,12 +195,7 @@ export default function VisualizerApp() {
         {stage === "catalogue" && <CatalogueStage onSelect={handleSelectProduct} />}
 
         {stage === "detail" && product && (
-          <DetailStage
-            product={product}
-            onVisualize={handleVisualize}
-            onBack={() => setStage("catalogue")}
-            onSwitchProduct={setProduct}
-          />
+          <DetailStage product={product} onVisualize={handleVisualize} onBack={() => setStage("catalogue")} />
         )}
 
         {stage === "lead" && product && (
@@ -216,12 +210,12 @@ export default function VisualizerApp() {
           <ProcessingStage photo={photo} product={product} onDone={handleProcessingDone} />
         )}
 
-        {stage === "result" && product && photo && visualization && (
+        {stage === "result" && product && photo && doorType && (
           <ResultStage
             product={product}
             lead={lead}
             photo={photo}
-            visualization={visualization}
+            doorType={doorType}
             onSelectDifferentProduct={handleSelectDifferentProduct}
             onRestart={handleRestart}
           />
@@ -243,6 +237,23 @@ function SearchIcon() {
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="11" cy="11" r="7" />
       <path d="M21 21l-4.3-4.3" />
+    </svg>
+  );
+}
+function MedalIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="15" r="6" />
+      <path d="M9 9.5L6 3M15 9.5l3-6.5M9.5 15l-1 3.5M14.5 15l1 3.5" />
+    </svg>
+  );
+}
+function DanishFlagIcon() {
+  return (
+    <svg width="16" height="12" viewBox="0 0 16 12" style={{ flexShrink: 0 }}>
+      <rect width="16" height="12" fill="#c8102e" />
+      <rect x="5" width="2.4" height="12" fill="#fff" />
+      <rect y="5" width="16" height="2.4" fill="#fff" />
     </svg>
   );
 }

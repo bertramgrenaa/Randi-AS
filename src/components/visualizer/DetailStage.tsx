@@ -1,27 +1,15 @@
 "use client";
 
-import { RANDI_PRODUCTS, type RandiProduct } from "@/data/randi-real-products";
+import type { RandiHandleProduct } from "@/data/randi-real-products";
 import { formatDKK } from "@/lib/project-engines";
-import HandleIllustration from "./HandleIllustration";
-
-const FINISH_SWATCH_COLOR: Record<RandiProduct["finishFamily"], string> = {
-  steel: "linear-gradient(135deg,#d7dade,#8b9096)",
-  "black-pvd": "linear-gradient(135deg,#4a4b4f,#1c1d20)",
-  "brass-pvd": "linear-gradient(135deg,#d3ab68,#8f6a34)",
-  "copper-pvd": "linear-gradient(135deg,#c17e4e,#7c4522)",
-  "polished-brass": "linear-gradient(135deg,#f0d28c,#b3862f)",
-};
 
 interface DetailStageProps {
-  product: RandiProduct;
+  product: RandiHandleProduct;
   onVisualize: () => void;
   onBack: () => void;
-  onSwitchProduct: (product: RandiProduct) => void;
 }
 
-export default function DetailStage({ product, onVisualize, onBack, onSwitchProduct }: DetailStageProps) {
-  const siblings = RANDI_PRODUCTS.filter((p) => p.name === product.name);
-
+export default function DetailStage({ product, onVisualize, onBack }: DetailStageProps) {
   return (
     <div className="rv-detail rv-container">
       <button type="button" className="rv-back" onClick={onBack}>
@@ -31,50 +19,26 @@ export default function DetailStage({ product, onVisualize, onBack, onSwitchProd
       <div className="rv-detail-grid">
         <div>
           <div className="rv-detail-stage">
-            <HandleIllustration
-              silhouette={product.silhouette}
-              finishFamily={product.finishFamily}
-              hasBirchInsert={product.silhouette === "nordic-straight"}
-            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={product.handlePhoto} alt={product.name} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
           </div>
-          {siblings.length > 1 && (
-            <div className="rv-finish-row">
-              {siblings.map((s) => (
-                <button
-                  key={s.id}
-                  type="button"
-                  aria-label={s.finish}
-                  title={s.finish}
-                  className={`rv-finish-swatch ${s.id === product.id ? "on" : ""}`}
-                  style={{ background: FINISH_SWATCH_COLOR[s.finishFamily] }}
-                  onClick={() => onSwitchProduct(s)}
-                />
-              ))}
-            </div>
-          )}
         </div>
 
         <div className="rv-detail-info">
           <h1>{product.productNumber}</h1>
           <div className="series">
-            {product.series} · {product.name}
+            Randi-Line® · {product.name}
+            {product.verified ? (
+              <span className="rv-verified-badge">
+                <CheckIcon /> Bekræftet produktdata
+              </span>
+            ) : null}
           </div>
-          {product.designer && (
-            <p className="desig">
-              Designet af {product.designer}
-              {product.designerNote ? ` — ${product.designerNote}` : ""}
-            </p>
-          )}
-          <p className="desc">{product.description}</p>
+          {product.designer && <p className="desig">Designet af {product.designer}</p>}
+          {product.description && <p className="desc">{product.description}</p>}
 
           <ul className="rv-bullets">
             <li>Leveres som standard i {product.finish.toLowerCase()}.</li>
-            <li>Materiale: {product.materials}.</li>
-            {product.diameterMm && <li>Diameter: Ø{product.diameterMm} mm.</li>}
-            {product.doorThicknessOptions && (
-              <li>Leveres i sæt til dørtykkelse {product.doorThicknessOptions.join(", ")}.</li>
-            )}
-            {product.spindleOptions && <li>Standard dørgrebspind, {product.spindleOptions.join(" og ")}.</li>}
             {product.standards && product.standards.length > 0 && (
               <li>
                 Grebet er godkendt i henhold til:{" "}
@@ -94,15 +58,13 @@ export default function DetailStage({ product, onVisualize, onBack, onSwitchProd
             <span className="rv-demo-badge">Demo-pris</span>
           </div>
 
-          {product.sustainabilityAttributes.map((attr) => (
-            <div className="rv-sustain-tag" key={attr.label}>
-              <LeafIcon />
-              <div>
-                <div className="label">{attr.label}</div>
-                <div className="detail">{attr.detail}</div>
-              </div>
+          <div className="rv-insight-box">
+            <LeafIcon />
+            <div>
+              <div className="title">{product.insight.title}</div>
+              <p className="body">{product.insight.body}</p>
             </div>
-          ))}
+          </div>
 
           <div className="rv-detail-cta">
             <button type="button" className="rv-btn rv-btn-primary" onClick={onVisualize}>
@@ -111,8 +73,10 @@ export default function DetailStage({ product, onVisualize, onBack, onSwitchProd
           </div>
 
           <p className="rv-source-note">
-            Produktdata baseret på randi.dk og officielle designerkilder. Priser og CO₂e er demo-værdier —
-            erstat med Randis pris- og LCA-data.
+            {product.verified
+              ? "Produktdata (designer, standarder, beskrivelse) er researchet fra randi.dk og officielle designerkilder."
+              : "Produktnummer og finish er som oplyst af Randi A/S — ikke uafhængigt verificeret mod randi.dk i denne prototype."}{" "}
+            Pris og CO₂e er demo-værdier — erstat med Randis pris- og LCA-data.
           </p>
         </div>
       </div>
@@ -138,9 +102,16 @@ function ArrowIcon() {
 }
 function LeafIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" style={{ marginTop: 2 }}>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" style={{ marginTop: 2, flexShrink: 0 }}>
       <path d="M11 20A7 7 0 0 1 4 13c0-4 3-8 10-9 1 6-1 12-3 16z" />
       <path d="M4 13c4 0 8-2 10-9" />
+    </svg>
+  );
+}
+function CheckIcon() {
+  return (
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+      <path d="M20 6L9 17l-5-5" />
     </svg>
   );
 }
