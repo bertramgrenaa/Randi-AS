@@ -126,11 +126,27 @@ function buildCrossSell(
   return items;
 }
 
+/**
+ * When the user starts the configurator from a specific product page ("Brug i
+ * AI-konfigurator"), the chosen series/finish should win over whatever the AI/mock
+ * detection would otherwise have picked — the door-type/count detection from the photo is
+ * still useful, but the *product line* is now the user's explicit choice.
+ */
+export interface ProductPreference {
+  series: string;
+  finish: string;
+  productName: string;
+}
+
 export function buildAnalysisResult(
   detection: RawDetection,
   sourceFileName: string,
-  source: AnalysisSource
+  source: AnalysisSource,
+  preference?: ProductPreference
 ): AnalysisResult {
+  const series = preference?.series ?? detection.series;
+  const finish = preference?.finish ?? detection.finish;
+
   const detectedDoors: DetectedDoor[] = detection.doors.map((d) => ({
     ...d,
     id: nextId("door"),
@@ -140,7 +156,7 @@ export function buildAnalysisResult(
 
   const doorLineItemsMap = new Map<string, ConfiguredLineItem>();
   for (const door of detectedDoors) {
-    const handle = findDoorHandle(detection.series, door.doorType, detection.finish);
+    const handle = findDoorHandle(series, door.doorType, finish);
     if (!handle) continue;
     const doorReason = `"${door.label}" (${door.doorType}, ${door.colorTone.toLowerCase()})`;
     const existing = doorLineItemsMap.get(handle.id);
@@ -160,8 +176,8 @@ export function buildAnalysisResult(
   const doorLineItems = Array.from(doorLineItemsMap.values());
 
   const crossSellLineItems = buildCrossSell(
-    detection.series,
-    detection.finish,
+    series,
+    finish,
     totalDoorCount,
     detection.windowCount,
     detection.wetRoomCount
@@ -169,13 +185,17 @@ export function buildAnalysisResult(
 
   const totals = computeTotals([...doorLineItems, ...crossSellLineItems]);
 
+  const summary = preference
+    ? `Konfigureret ud fra dit valgte produkt (${preference.productName}). ${detection.summary}`
+    : detection.summary;
+
   return {
     id: nextId("analysis"),
     createdAt: new Date().toISOString(),
     sourceFileName,
     source,
-    summary: detection.summary,
-    recommendedSeries: detection.series,
+    summary,
+    recommendedSeries: series,
     detectedDoors,
     doorLineItems,
     crossSellLineItems,

@@ -18,7 +18,7 @@ export default function VisualPreview({ result, previewUrl }: VisualPreviewProps
     <div className="overflow-hidden rounded-2xl border border-randi-line bg-white shadow-sm">
       <div className="flex items-center justify-between border-b border-randi-line px-5 py-3">
         <div className="flex items-center gap-2">
-          <Sparkles size={16} className="text-randi-copper" />
+          <Sparkles size={16} className="text-randi-accent" />
           <h3 className="text-sm font-semibold text-randi-ink">Visuelt preview</h3>
         </div>
         <div className="flex rounded-lg bg-stone-100 p-1 text-xs font-medium">
@@ -55,7 +55,7 @@ export default function VisualPreview({ result, previewUrl }: VisualPreviewProps
 
         {showAfter && topDoor && (
           <>
-            <div className="absolute inset-6 rounded-xl border-2 border-dashed border-randi-copper/70">
+            <div className="absolute inset-6 rounded-xl border-2 border-dashed border-randi-accent/70">
               <span className="absolute -top-3 left-3 rounded-full bg-randi-ink px-2.5 py-1 text-[11px] font-medium text-white shadow">
                 {topDoor.doorType} · {Math.round(topDoor.confidence * 100)}% sikkerhed
               </span>

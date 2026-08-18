@@ -63,8 +63,8 @@ export default function UploadDropzone({ onSubmit, isSubmitting }: UploadDropzon
         onDrop={handleDrop}
         className={`relative flex min-h-64 w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed p-8 text-center transition-colors ${
           isDragging
-            ? "border-randi-copper bg-randi-copper/5"
-            : "border-randi-line bg-white hover:border-randi-copper/50 hover:bg-randi-copper/[0.03]"
+            ? "border-randi-accent bg-randi-accent/5"
+            : "border-randi-line bg-white hover:border-randi-accent/50 hover:bg-randi-accent/[0.03]"
         }`}
       >
         <input
@@ -77,7 +77,7 @@ export default function UploadDropzone({ onSubmit, isSubmitting }: UploadDropzon
 
         {!file && (
           <>
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-randi-copper/10 text-randi-copper">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-randi-accent/10 text-randi-accent">
               <UploadCloud size={28} />
             </div>
             <div>
@@ -132,7 +132,7 @@ export default function UploadDropzone({ onSubmit, isSubmitting }: UploadDropzon
           onChange={(e) => setNotes(e.target.value)}
           placeholder='F.eks. "Kontorbygning, 3 etager, ønsker et gennemgående look i stål"'
           rows={2}
-          className="mt-1.5 w-full rounded-lg border border-randi-line bg-white px-3 py-2 text-sm text-randi-ink placeholder:text-stone-400 focus:border-randi-copper focus:outline-none focus:ring-1 focus:ring-randi-copper"
+          className="mt-1.5 w-full rounded-lg border border-randi-line bg-white px-3 py-2 text-sm text-randi-ink placeholder:text-stone-400 focus:border-randi-accent focus:outline-none focus:ring-1 focus:ring-randi-accent"
         />
       </div>
 

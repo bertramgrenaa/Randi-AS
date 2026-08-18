@@ -102,7 +102,7 @@ export default function LeadGateModal({ result, onClose }: LeadGateModalProps) {
           <X size={18} />
         </button>
 
-        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-randi-copper/10 text-randi-copper">
+        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-randi-accent/10 text-randi-accent">
           <Lock size={20} />
         </div>
         <h2 id="lead-gate-title" className="mt-3 text-lg font-semibold text-randi-ink">
@@ -171,7 +171,7 @@ export default function LeadGateModal({ result, onClose }: LeadGateModalProps) {
                 type="checkbox"
                 checked={form.consent}
                 onChange={(e) => update("consent", e.target.checked)}
-                className="mt-0.5 h-4 w-4 rounded border-stone-300 text-randi-copper focus:ring-randi-copper"
+                className="mt-0.5 h-4 w-4 rounded border-stone-300 text-randi-accent focus:ring-randi-accent"
               />
               Jeg accepterer, at Randi A/S må kontakte mig vedrørende dette projekt og tilbud.
             </label>
@@ -205,7 +205,7 @@ export default function LeadGateModal({ result, onClose }: LeadGateModalProps) {
 }
 
 const inputClass =
-  "mt-1 w-full rounded-lg border border-randi-line bg-white px-3 py-2 text-sm text-randi-ink placeholder:text-stone-400 focus:border-randi-copper focus:outline-none focus:ring-1 focus:ring-randi-copper";
+  "mt-1 w-full rounded-lg border border-randi-line bg-white px-3 py-2 text-sm text-randi-ink placeholder:text-stone-400 focus:border-randi-accent focus:outline-none focus:ring-1 focus:ring-randi-accent";
 
 function Field({
   label,
@@ -218,7 +218,7 @@ function Field({
 }) {
   return (
     <label className="block text-xs font-medium text-stone-600">
-      {label} {required && <span className="text-randi-copper">*</span>}
+      {label} {required && <span className="text-randi-accent">*</span>}
       {children}
     </label>
   );

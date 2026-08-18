@@ -58,7 +58,7 @@ export default function ResultDashboard({
         </div>
         <div className="space-y-4 lg:col-span-3">
           <TotalsSummary totals={result.totals} />
-          <div className="rounded-2xl border border-dashed border-randi-copper/40 bg-randi-copper/5 p-5">
+          <div className="rounded-2xl border border-dashed border-randi-accent/40 bg-randi-accent/5 p-5">
             <p className="text-sm font-medium text-randi-ink">
               Få den komplette Building Specifier Report
             </p>
@@ -69,7 +69,7 @@ export default function ResultDashboard({
             <button
               type="button"
               onClick={onRequestReport}
-              className="mt-4 flex items-center gap-2 rounded-xl bg-randi-copper px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-randi-copper-dark"
+              className="mt-4 flex items-center gap-2 rounded-xl bg-randi-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-randi-accent-dark"
             >
               <Download size={16} /> Download fuld rapport
             </button>
